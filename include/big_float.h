@@ -21,6 +21,7 @@ void bf_set_ui( bf rop, unsigned int op );
 void bf_set_d( bf rop, double op );
 void bf_swap( bf x, bf y);
 void bf_neg(bf rop, bf op);
+int  bf_cmp(bf op1, bf op2);
 void bf_add(bf rop, bf op1, bf op2);
 void bf_sub(bf rop, bf op1, bf op2);
 void bf_mul(bf rop, bf op1, bf op2);

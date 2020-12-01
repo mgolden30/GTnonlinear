@@ -49,7 +49,86 @@ void bf_blas_dot( bf result, int n, bf *x, int incx, bf *y, int incy ){
 }
 
 
-void qr_decomposition( bf *qt, bf *a, int m, int n, int lda ){
+/*
+ * Level 2 BLAS
+ */
+
+//I made this because gemv is a pain in the ass to call.
+//Just normal matrix-vector multiplication
+//y<-a*x
+void bf_blas_mv(int m, int n, bf *a, int lda, bf *x, int incx, bf *y, int incy){
+    BF_WORKING_MEMORY(work);
+    bfp prec = bf_get_prec(a[0]);
+    check_work_mem( &work, n, prec );
+    
+    for(int i=0; i<m; i++){
+        bf_blas_dot( work.ptr[i], n, &a[i*lda], 1, x, incx );
+    }
+
+    //Now swap the values of y and working memory.
+    //We do this so that the possibility x=y is allowed.
+    for(int i=0; i<m; i++){
+        bf_swap( work.ptr[i], y[i*incy] );
+    }
+}
+
+
+
+/*
+ * Level 3 BLAS
+ */
+//I made this because gemm is a pain in the ass to call.
+//Just normal matrix-matrix multiplication
+//c<-a*b
+void bf_blas_mm( int m, int n, int k, bf *a, int lda, bf *b, int ldb, bf *c, int ldc){
+    BF_WORKING_MEMORY(work);
+    bfp prec = bf_get_prec(a[0]);
+    check_work_mem( &work, m*k, prec );
+    
+    for(int i=0; i<m; i++){
+        for(int j=0; j<k; j++){
+            bf_blas_dot( work.ptr[i*k+j], n, &a[i*lda], 1, &b[j], ldb );
+	}
+    }
+
+    //Now swap the values with working memory.
+    //We do this so that the possibility c=a or c=b is allowed.
+    for(int i=0; i<m; i++){
+        for(int j=0; j<k; j++){
+            bf_swap( work.ptr[i*k+j], c[i*ldc+j] );
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+/* Here are some more complicated linear algebra functions
+ */
+
+
+/* Perofrms a QR decomposition of a matrix.
+ * A = QR, where A is a general m-by-n matrix, Q is a m-by-m orthogonal matrix, and R is an upper triangular m-by-n matrix.
+ * 
+ * IN:
+ * bf *qt - a pointer to Q^T. Must be initialized, but not set to anything in particular.
+ * bf *a  - matrix A you want to do the QR decomposition for. This is destroyed in the process.
+ * int m,n -size of bf *a
+ * int lda - this is a Lapack-style variable in case you want to perform QR on a submatrix. Usually lda = n
+ * bf tolerance - a big_float that determines what is numerical error.
+ *
+ * OUT:
+ * bf *qt - now has the transpose of q in it.
+ * bf *a  - now has the upper-triangular matrix.
+ */
+void qr_decomposition( bf *qt, bf *a, int m, int n, int lda, bf tolerance ){
     BF_WORKING_MEMORY(work);
     bfp prec = bf_get_prec(a[0]);
     check_work_mem( &work, m+2, prec);
@@ -77,6 +156,12 @@ void qr_decomposition( bf *qt, bf *a, int m, int n, int lda ){
 	//Find alpha
 	bf_blas_dot( *alpha, a_vec_length, a_vec, lda, a_vec, lda);
 	bf_sqrt( *alpha, *alpha );
+        
+	//Check if the norm of this vector is less than your tolerance
+	//If it is, then this vector is effectively already zero. Skip to the next column
+	if( bf_cmp( *alpha, tolerance ) <= 0 ){
+            continue;
+	}
 
 	//Find mu
         bf_sub( *mu, *alpha, a_vec[0] );
@@ -85,7 +170,7 @@ void qr_decomposition( bf *qt, bf *a, int m, int n, int lda ){
 	bf_sqrt( *mu, *mu );
 	//turn a_vec into u_vec
        	bf_blas_copy( a_vec_length, a_vec, lda, u_vec, 1);
-        bf_sub( u_vec[0], u_vec[0], *alpha  );
+        bf_sub( u_vec[0], u_vec[0], *alpha );
         //turn mu into 1/mu and scale the vector.
 	bf_ui_div( *mu, 1, *mu);
 	bf_blas_scal( a_vec_length, *mu, u_vec, 1 );
@@ -100,7 +185,7 @@ void qr_decomposition( bf *qt, bf *a, int m, int n, int lda ){
 	}
 
         //Do the same routine to qt
-	for(int j=0; j<n; j++){
+	for(int j=0; j<m; j++){
             bf *q_vec = &qt[i*m + j];
 	    //store dot product in alpha since it isn't needed again.
 	    bf_blas_dot( *alpha, a_vec_length, q_vec, m, u_vec, 1 );

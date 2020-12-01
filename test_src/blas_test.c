@@ -4,7 +4,7 @@ int main( int argc, char *argv[] ){
     int n=4;
     bf x[n];
     bf y[n];
-    bfp prec = 100;
+    bfp prec = 200;
     bf_inits(n, x, prec);
     bf_inits(n, y, prec);
     for(int i=0; i<n; i++){
@@ -26,27 +26,38 @@ int main( int argc, char *argv[] ){
 
 
     //Now test QR decomposition
-    printf("Testing QR decomposition\n"); 
+    printf("Testing QR decomposition\n\n"); 
 
-    n=3;
+    int m=10; n=5;
     //let x from above be our matrix
-    bf qt[n*n];
-    bf r[n*n];
-    bf_inits(n*n, qt, prec);
-    bf_inits(n*n, r, prec);
-    for(int i=0; i<n; i++){
-        for(int j=0; j<n; j++){
-            bf_set_ui( r[i*n+j], i*n+j+1);
-	}
+    bf qt[m*m];
+    bf r[m*n];
+    bf_inits(m*m, qt, prec);
+    bf_inits(m*n, r,  prec);
+    for(int i=0; i<m*n; i++){    
+        bf_set_ui( r[i], i+1);
     }
 
+    bf tolerance;
+    bf_init( tolerance, prec );
+    bf_set_d( tolerance, 1e-20 );
 
-    bf_print_matrix( r, n, n, n);
+    bf_print_matrix( r, m, n, n);
     
-	    qr_decomposition( qt, r, n, n, n );
+    qr_decomposition( qt, r, m, n, n, tolerance );
 
-    bf_print_matrix( qt, n, n, n);
-    bf_print_matrix( r, n, n, n);
+    bf_print_matrix( qt, m, m, m);
+    bf_print_matrix( r,  m, n, n);
+
+    //reset r
+    for(int i=0; i<m*n; i++){    
+        bf_set_ui( r[i], i+1);
+    }
     
+    //multiply by qt to check that the triangular matrix is found
+    bf_print_matrix( r,  m, n, n);
+    bf_blas_mm( m,  m, n, qt, m, r, n, r, n);
+    bf_print_matrix( r,  m, n, n);
+  
     return 0;
 }

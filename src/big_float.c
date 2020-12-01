@@ -48,6 +48,12 @@ void bf_neg(bf rop, bf op){
     mpfr_neg( rop, op, MPFR_RNDN );
 }
 
+//wrapper for mpfr_cmp. From the mpfr.org website:
+//Compare op1 and op2. Return a positive value if op1 > op2, zero if op1 = op2, and a negative value if op1 < op2. Both op1 and op2 are considered to their full own precision, which may differ. If one of the operands is NaN, set the erange flag and return zero. 
+int bf_cmp( bf op1, bf op2 ){
+    return mpfr_cmp( op1, op2 );
+}
+
 //rop <- op1 + op2
 void bf_add(bf rop, bf op1, bf op2){
     mpfr_add( rop, op1, op2, MPFR_RNDN );

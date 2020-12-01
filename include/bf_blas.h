@@ -9,6 +9,13 @@ void bf_blas_copy( int n, bf *x, int incx, bf *y, int incy );
 void bf_blas_axpy(int n, bf alpha, bf *x, int incx, bf *y, int incy );
 void bf_blas_dot( bf result, int n, bf *x, int incx, bf *y, int incy );
 
-void qr_decomposition( bf *qt, bf *a, int m, int n, int lda );
+
+
+void bf_blas_mv(int m, int n, bf *a, int lda, bf *x, int incx, bf *y, int incy);
+
+void bf_blas_mm( int m, int n, int k, bf *a, int lda, bf *b, int ldb, bf *c, int ldc);
+
+	
+void qr_decomposition( bf *qt, bf *a, int m, int n, int lda, bf tolerance );
 void bf_print_matrix(bf *matrix, int m, int n, int lda);
 #endif
