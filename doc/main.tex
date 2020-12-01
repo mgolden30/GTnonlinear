@@ -1,0 +1,58 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+
+\begin{document}
+
+\section{Runge-Kutta Methods}
+Runge-Kutta methods solve an ODE $\dot{x} = f(x)$, where $x$ is some vector. The idea is to find coefficients $b_i$ and $a_{ij}$ such that 
+$$ x_{n+1} = x_n + \sum_{i=1}^s b_i k_i.$$
+$k_i$ is a vector of approximate derivatives $k_i\approx f(x_n)$, such that the weighted sum gives a very good approximation to the true answer. The $k_i$ are defined by 
+$$ k_i = hf\left( x_n + \sum_{j=1}^s a_{ij}k_j \right).$$
+The coefficients of a RK scheme can be put into a Butcher tableau. It is a convention to take $k_1 = f(x_n)$, so there is no top row.
+$$\begin{tabular}{c c c}
+	$a_{11}$ & $\cdots$ & $a_{1s}$\\
+	$a_{21}$ & $\cdots$ & $a_{2s}$\\
+	$\vdots$ & $\ddots$ & $\vdots$\\
+	$a_{s1}$ & $\cdots$ & $a_{ss}$ \\
+	\hline
+	$b_1$ & $\cdots$ & $b_s$
+\end{tabular}
+$$
+As an example, suppose we have a two-step method. Expanding both sides of the discrete approximation in time, we get 
+$$ x_n + h f(x_n) + \frac12 h^2 f'(x_n) f(x_n) + O(h)^3 = x_n + b_1 k_1 + b_2 k_2.$$
+Comparing terms of order $h$ gives 
+$$ b_1 + b_2 = 1.$$
+Comparing terms of order $h^2$ gives 
+$$b_1(a_{11} + a_{12}) + b_2(a_{21} + a_{22}) = \frac12.$$
+Here are some solutions.
+\subsection*{Huen's Method}
+$$\begin{tabular}{c c}
+	0 & 0\\
+	1 & 0\\
+	\hline
+	$1/2$ & $1/2$
+\end{tabular}
+$$
+\subsection*{Midpoint method}
+$$\begin{tabular}{c c}
+	0 & 0\\
+	1/2 & 0\\
+	\hline
+	$0$ & $1$
+\end{tabular}
+$$
+\subsection*{Trapezoid Rule}
+$$\begin{tabular}{c c}
+	0 & 0\\
+	1/2 & 1/2\\
+	\hline
+	$1/2$ & $1/2$
+\end{tabular}
+$$
+
+\section{Symplectic Runge-Kutta}
+Hamilton's equations of motion conserve a symplectic form $\omega = dq^i \wedge dp_i.$ If an integrator preserves such a form \textit{exactly}, then the integrator is called a symplectic integrator. Let $\omega_n$ be the 2-form at different timesteps. 
+
+
+\end{document}
