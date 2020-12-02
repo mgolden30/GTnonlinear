@@ -24,6 +24,7 @@ void bf_neg(bf rop, bf op);
 int  bf_cmp(bf op1, bf op2);
 void bf_add(bf rop, bf op1, bf op2);
 void bf_sub(bf rop, bf op1, bf op2);
+void bf_sub_ui(bf rop, bf op1, unsigned int op2);
 void bf_mul(bf rop, bf op1, bf op2);
 void bf_mul_ui(bf rop, bf op1, unsigned int op2);
 void bf_div(bf rop, bf op1, bf op2);

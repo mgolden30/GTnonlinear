@@ -1,43 +1,125 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "bf_nonlinear.h"
 
-typedef struct gmp_function{
-    int in_dim;
-    int out_dim;
-    void (*function)(mpf_t *out, mpf_t *in, mpf_t *numeric_params, void *params, gmp_work work);
-    gmp_work work;
-    mpf_t *numeric_params;
-    void  *params;
-}gmp_function;
+/* Performs Newton-Raphson iteration on f to find a root r: f(r) = 0
+ *
+ * IN:
+ * bf_nonlinear f     - a nonlinear function you want to find a root of
+ * bf *state          - the state you start with, hopefully near a root. 
+ * int max_iterations - so you won't wander state-space forever
+ * bf hookstep        - a big_float between 0 and 1 that weights your Newton step.
+ *                      a value closer to zero will converge more slowly, but prevents overstepping.
+ * bf threshold       - exit when ||f(state)|| < threshold
+ * bf tolerance       - the size of a value we take to be negligible. Needed for numerical linear algebra
+ *                      if a value is smaller than tolerance, it is assumed to be from numerical error.
+ */
+void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep, bf threshold, bf tolerance){
+    /* Need the following working memory
+     * jacobian         - m*n   
+     * jacobian_t       - m*n   tranpose of jacobian
+     * perturbed vector - n
+     * image            - m
+     * perturb_image    - m
+     * q                - n*n
+     * step             - n
+     * h                - 1
+     */
 
-//use this macro to set y = F(x)
-#define GMP_FN_EVAL(y,F,x)   ( (*(F.function))(y,x,(F.numeric_params),(F.params),(F.work)) )
+    int m = f.m;
+    int n = f.n;
+
+    BF_WORKING_MEMORY(work);
+    bfp prec = bf_get_prec(state[0]);
+    check_work_mem( &work, 2*m*n + n+ 2*m + n*n + n + 1 , prec);
+    bf *jacobian   = &work.ptr[0];
+    bf *jacobian_t = &work.ptr[m*n];
+    bf *perturb    = &work.ptr[2*m*n];
+    bf *image      = &work.ptr[2*m*n+n];
+    bf *pert_image = &work.ptr[2*m*n+n+m];
+    bf *q          = &work.ptr[2*m*n+n+2*m];
+    bf *step       = &work.ptr[2*m*n+n+2*m+n*n];
+    bf *h          = &work.ptr[2*m*n+n+2*m+n*n+n];
 
 
+    for( int iteration=0; iteration < max_iterations; iteration++ ){
+        //Make h.
+	//I will choose for h to decrease with the size of f(state)
+	BF_NONLINEAR_EVAL(image, f, state);
+        bf_blas_dot( *h, m, image, 1, image, 1);
+	bf_sqrt(*h,*h);
 
-void identity(mpf_t *out, mpf_t *in, mpf_t *numeric_params, void *params){
-    mpf_set( *out, *in );
+	//take this oppurtunity to check if the state has converged.
+        printf("Iteration %03d: error is ", iteration);
+        bf_print(*h);
+        printf("\n");
+	
+	if( bf_cmp( *h, threshold ) <= 0){
+	    printf("State converged!\n");
+            return;
+        }
+	bf_div_ui(*h, *h, 100);
+        //Now h = ||f(state)||*0.01
+
+
+        //Fill out the jacobian.
+	for( int i=0; i<n; i++){
+            bf_blas_copy( n, state, 1, perturb, 1);
+	    bf_add(perturb[i], perturb[i], *h);
+            BF_NONLINEAR_EVAL( pert_image, f, perturb);
+            for(int j=0; j<m; j++){
+                bf_sub( jacobian[i + j*n], pert_image[j], image[j] );
+		bf_div( jacobian[i + j*n], jacobian[i + j*n], *h );
+	    }
+	}
+      
+
+	//Now that jacobian is done, take its transpose.
+	for(int i=0; i<m; i++){
+            for(int j=0; j<n; j++){
+                bf_set( jacobian_t[j*m+i], jacobian[i*n+j] );
+	    }
+	}
+
+	//Take transpose of Jacobian
+        for(int i=0; i<m; i++){
+            for(int j=0; j<n; j++){
+                bf_set( jacobian_t[m*j + i], jacobian[n*i+j] );
+	    }
+	}
+
+        //Now plug it into QR decomposition
+        qr_decomposition( q, jacobian_t, n, m, m, tolerance );
+	//Take the transpose of q
+	for(int i=0; i<n; i++){
+            for(int j=i+1; j<n; j++){
+                bf_swap( q[i*n+j], q[j*n+i]);
+	    }
+	}
+
+	//Now invert jacobian_t transpose. It is a left triangular matrix.
+        bf_div( step[0], image[0], jacobian_t[0]); //assume this first step can be done without trouble.
+	for(int i=1; i<m; i++){
+	    //use h since it isn't needed anymore.
+	    bf_blas_dot(*h, i, &jacobian_t[i], m, image, 1);
+	    bf_sub( *h, image[i], *h);
+	    if( bf_cmp( jacobian_t[i*m+i], threshold ) <= 0){
+                bf_set_ui( step[i], 0 );
+                continue;
+	    }
+	    bf_div( step[i], *h, jacobian_t[i*m+i] );
+        }
+        //Set remaining spots to zero
+	for(int i=m; i<n; i++){
+            bf_set_ui( step[i], 0 );
+	}
+
+	//and just multiply it by q!
+        bf_blas_mv( n, n, q, n, step, 1, step, 1);
+
+        //Now take the step.
+        for( int i=0; i<n; i++ ){
+            bf_mul( step[i], step[i], hookstep );
+	    bf_sub( state[i], state[i], step[i] );
+	}
+    }
 }
 
-int main(int argc, char *argv[] ){
-    gmp_function id;
-    id.in_dim  = 1;
-    id.out_dim = 1;
-    id.function = &identity;
-    id.numeric_params = NULL;
-    id.params = NULL;
-
-    mpf_t x,y;
-    const int prec = 100;
-    mpf_init2(x, prec);
-    mpf_init2(y, prec);
-
-    mpf_set_ui(x, 17);
-
-    GMP_FN_EVAL(&y, id, &x);
-
-    mpf_out_str(stdout, 10, 20, y);
-
-    mpf_clears(x,y);
-    return 0;
-}

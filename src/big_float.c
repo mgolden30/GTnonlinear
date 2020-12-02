@@ -64,6 +64,12 @@ void bf_sub(bf rop, bf op1, bf op2){
     mpfr_sub( rop, op1, op2, MPFR_RNDN );
 }
 
+//rop <- op1 - op2
+void bf_sub_ui(bf rop, bf op1, unsigned int op2){
+    mpfr_sub_ui( rop, op1, op2, MPFR_RNDN );
+}
+
+
 //rop <- op1 * op2
 void bf_mul(bf rop, bf op1, bf op2){
     mpfr_mul( rop, op1, op2, MPFR_RNDN );
