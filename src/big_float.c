@@ -100,8 +100,13 @@ void bf_sqrt(bf rop, bf op){
     mpfr_sqrt( rop, op, MPFR_RNDN );
 }
 
+//rop = |op|
+void bf_abs( bf rop, bf op){
+    mpfr_abs( rop, op, MPFR_RNDN );
+}
+
 void bf_print(bf x){
-    mpfr_out_str( stdout, 10, 6, x, MPFR_RNDN );
+    mpfr_printf("% .6Re", x);
 }
 
 void bf_print_vector(int n, bf *x){

@@ -73,26 +73,24 @@ void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep,
 	}
      
 	//Now that jacobian is done, take its transpose.
-	for(int i=0; i<m; i++){
-            for(int j=0; j<n; j++){
-                bf_set( jacobian_t[j*m+i], jacobian[i*n+j] );
-	    }
-	}
+        bf_matrix_transpose( jacobian, m, n, jacobian_t);
 
-        //Now plug it into QR decomposition
+        //Now plug it into QR decomposition to effectively do LQ decomposition
         qr_decomposition( q, jacobian_t, n, m, m, tolerance );
-	//Take the transpose of q
+        
+	//Take transpose of q
 	for(int i=0; i<n; i++){
             for(int j=i+1; j<n; j++){
-                bf_swap( q[i*n+j], q[j*n+i]);
-	    }
+                bf_swap( q[i*n+j], q[j*n+i] );
+	    }  
 	}
 
 	//Now invert jacobian_t transpose. It is a left triangular matrix.
         bf_div( step[0], image[0], jacobian_t[0]); //assume this first step can be done without trouble.
 	for(int i=1; i<m; i++){
 	    //use h since it isn't needed anymore.
-	    bf_blas_dot(*h, i, &jacobian_t[i], m, image, 1);
+	    bf_blas_dot(*h, i, &jacobian_t[i], m, step, 1);
+
 	    bf_sub( *h, image[i], *h);
 	    if( bf_cmp( jacobian_t[i*m+i], threshold ) <= 0){
                 bf_set_ui( step[i], 0 );
@@ -105,15 +103,42 @@ void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep,
             bf_set_ui( step[i], 0 );
 	}
 
-        printf("Before taking the step, let us verify our step actually will resolve the error.\n");
-        printf("Here is the image of the current state:\n");
-	bf_print_vector( m, image );
+	/*
+        printf("I have now found a rotated step vector.\n");
+        
+	bf l[m*n];
+	bf_inits( m*n, l, prec);
 
+        bf_matrix_transpose( jacobian_t, n, m, l);
+        printf("Here is L:\n");
+	bf_print_matrix( l, m, n, n);
+
+        printf("Here is the image:\n");
+	bf_print_vector( m, image );
+        
+        printf("Here is l*s':\n");
+        bf_blas_mv( m,  n, l, n, step, 1, image, 1);
+	bf_print_vector( m, image );
+        
+        printf("Now let us check that the jacobian can be faithfully reproduced.\n");
+	printf("J = \n");
+	bf_print_matrix( jacobian, m, n, n);
+	printf("L * q = \n");
+        bf_blas_mm( m, n, n, l, n, q, n, jacobian, n);
+	bf_print_matrix( jacobian, m, n, n);
+        */
+
+	/*
+        printf("Before taking the step, let us verify our step actually will resolve the error.\n");
+	bf_print_vector( m, image );
+	*/
 	//and just multiply it by q!
         bf_blas_mv( n, n, q, n, step, 1, step, 1);
+	
+	/*
 	printf("\nHere is Jacobian*step.\n");
-        bf_blas_mv( m,  n, jacobian, n, step, 1, image, 1);
-	bf_print_vector( m, image );
+        bf_blas_mv( m, n, jacobian, n, step, 1, image, 1);
+	bf_print_vector( m, image );*/
 
         //Now take the step.
         for( int i=0; i<n; i++ ){

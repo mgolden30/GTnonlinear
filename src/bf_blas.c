@@ -59,7 +59,7 @@ void bf_blas_dot( bf result, int n, bf *x, int incx, bf *y, int incy ){
 void bf_blas_mv(int m, int n, bf *a, int lda, bf *x, int incx, bf *y, int incy){
     BF_WORKING_MEMORY(work);
     bfp prec = bf_get_prec(a[0]);
-    check_work_mem( &work, n, prec );
+    check_work_mem( &work, m, prec );
     
     for(int i=0; i<m; i++){
         bf_blas_dot( work.ptr[i], n, &a[i*lda], 1, x, incx );
@@ -68,7 +68,7 @@ void bf_blas_mv(int m, int n, bf *a, int lda, bf *x, int incx, bf *y, int incy){
     //Now swap the values of y and working memory.
     //We do this so that the possibility x=y is allowed.
     for(int i=0; i<m; i++){
-        bf_swap( work.ptr[i], y[i*incy] );
+        bf_set( y[i*incy], work.ptr[i] );
     }
 }
 
@@ -199,6 +199,17 @@ void qr_decomposition( bf *qt, bf *a, int m, int n, int lda, bf tolerance ){
 	    bf_neg(*alpha, *alpha);
 	    bf_mul_ui( *alpha, *alpha, 2);
             bf_blas_axpy( a_vec_length, *alpha, u_vec, 1, q_vec, m);
+	}
+    }
+
+    //Explicitly set small values of a to zero no.
+    for(int i=0; i<m; i++){
+        for(int j=0; j<n; j++){
+	    //store absolute value in alpha
+	    bf_abs( *alpha, a[i*lda+j] );
+            if( bf_cmp(*alpha, tolerance) <= 0 ){
+                bf_set_ui( a[i*lda+j], 0);
+	    }
 	}
     }
 }

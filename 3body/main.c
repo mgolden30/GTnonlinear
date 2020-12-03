@@ -32,12 +32,12 @@ int main( int argc, char *argv[] ){
     bf_init( threshold, prec );
     bf_init( tolerance, prec );
     bf_init( hookstep,  prec );
-    bf_set_d( threshold, 1e-4 );
-    bf_set_d( tolerance, 1e-10 );
-    bf_set_d( hookstep,  0.2 );
+    bf_set_d( threshold, 1e-30 );
+    bf_set_d( tolerance, 1e-8 );
+    bf_set_d( hookstep, 0.6 );
    
     printf("Starting Newton.\n"); 
-    newton_raphson( f, state, 100, hookstep, threshold, tolerance);
+    newton_raphson( f, state, 20, hookstep, threshold, tolerance);
 
     bf_print_vector( n, state );
 
@@ -210,7 +210,9 @@ void planar_3body_td(bf *out, bf *in){
 
 
 void periodic_orbit_objective_function( bf *out, bf *in, bf *np, void *p ){
-    rk4( out, in, in[8], 200, &planar_3body_td, 8);
+    int dimension = 8;
+    int oodt = 100; //1/dt
+    rk4( out, in, in[8], oodt, &planar_3body_td, dimension);
     for(int i=0; i<8; i++){
         bf_sub( out[i], out[i], in[i] );
     }

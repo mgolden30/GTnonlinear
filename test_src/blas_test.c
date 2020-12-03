@@ -28,19 +28,19 @@ int main( int argc, char *argv[] ){
     //Now test QR decomposition
     printf("Testing QR decomposition\n\n"); 
 
-    int m=10; n=5;
+    int m=4; n=5;
     //let x from above be our matrix
     bf qt[m*m];
     bf r[m*n];
     bf_inits(m*m, qt, prec);
     bf_inits(m*n, r,  prec);
     for(int i=0; i<m*n; i++){    
-        bf_set_ui( r[i], i+1);
+        bf_set_ui( r[i], i*(i+1));
     }
 
     bf tolerance;
     bf_init( tolerance, prec );
-    bf_set_d( tolerance, 1e-20 );
+    bf_set_d( tolerance, 1e-40 );
 
     bf_print_matrix( r, m, n, n);
     
@@ -51,7 +51,7 @@ int main( int argc, char *argv[] ){
 
     //reset r
     for(int i=0; i<m*n; i++){    
-        bf_set_ui( r[i], i+1);
+        bf_set_ui( r[i], i*(i+1));
     }
     
     //multiply by qt to check that the triangular matrix is found

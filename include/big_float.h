@@ -31,6 +31,7 @@ void bf_div(bf rop, bf op1, bf op2);
 void bf_ui_div(bf rop, unsigned int op1, bf op2);
 void bf_div_ui(bf rop, bf op1, unsigned int op2);
 void bf_sqrt(bf rop, bf op);
+void bf_abs( bf rop, bf op);
 
 void bf_print(bf x);
 void bf_print_vector(int n, bf *x);
