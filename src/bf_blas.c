@@ -103,8 +103,15 @@ void bf_blas_mm( int m, int n, int k, bf *a, int lda, bf *b, int ldb, bf *c, int
 
 
 
-
-
+/* Take the transpose of a matrix.
+ */
+void bf_matrix_transpose( bf *matrix, int m, int n, bf *matrix_t ){
+    for( int i=0; i<m; i++ ){
+        for( int j=0; j<n; j++ ){
+            bf_set( matrix_t[i+j*m], matrix[j+i*n] );
+	}
+    }
+}
 
 
 

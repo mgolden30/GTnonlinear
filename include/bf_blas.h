@@ -9,7 +9,7 @@ void bf_blas_copy( int n, bf *x, int incx, bf *y, int incy );
 void bf_blas_axpy(int n, bf alpha, bf *x, int incx, bf *y, int incy );
 void bf_blas_dot( bf result, int n, bf *x, int incx, bf *y, int incy );
 
-
+void bf_matrix_transpose( bf *matrix, int m, int n, bf *matrix_t );
 
 void bf_blas_mv(int m, int n, bf *a, int lda, bf *x, int incx, bf *y, int incy);
 

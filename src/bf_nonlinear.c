@@ -1,5 +1,6 @@
 #include "bf_nonlinear.h"
 
+
 /* Performs Newton-Raphson iteration on f to find a root r: f(r) = 0
  *
  * IN:
@@ -44,7 +45,7 @@ void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep,
         //Make h.
 	//I will choose for h to decrease with the size of f(state)
 	BF_NONLINEAR_EVAL(image, f, state);
-        bf_blas_dot( *h, m, image, 1, image, 1);
+	bf_blas_dot( *h, m, image, 1, image, 1);
 	bf_sqrt(*h,*h);
 
 	//take this oppurtunity to check if the state has converged.
@@ -56,8 +57,8 @@ void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep,
 	    printf("State converged!\n");
             return;
         }
-	bf_div_ui(*h, *h, 100);
-        //Now h = ||f(state)||*0.01
+	bf_div_ui(*h, *h, 10000);
+        //Now h = ||f(state)||*1E-4
 
 
         //Fill out the jacobian.
@@ -70,19 +71,11 @@ void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep,
 		bf_div( jacobian[i + j*n], jacobian[i + j*n], *h );
 	    }
 	}
-      
-
+     
 	//Now that jacobian is done, take its transpose.
 	for(int i=0; i<m; i++){
             for(int j=0; j<n; j++){
                 bf_set( jacobian_t[j*m+i], jacobian[i*n+j] );
-	    }
-	}
-
-	//Take transpose of Jacobian
-        for(int i=0; i<m; i++){
-            for(int j=0; j<n; j++){
-                bf_set( jacobian_t[m*j + i], jacobian[n*i+j] );
 	    }
 	}
 
@@ -112,8 +105,15 @@ void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep,
             bf_set_ui( step[i], 0 );
 	}
 
+        printf("Before taking the step, let us verify our step actually will resolve the error.\n");
+        printf("Here is the image of the current state:\n");
+	bf_print_vector( m, image );
+
 	//and just multiply it by q!
         bf_blas_mv( n, n, q, n, step, 1, step, 1);
+	printf("\nHere is Jacobian*step.\n");
+        bf_blas_mv( m,  n, jacobian, n, step, 1, image, 1);
+	bf_print_vector( m, image );
 
         //Now take the step.
         for( int i=0; i<n; i++ ){
@@ -122,4 +122,3 @@ void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep,
 	}
     }
 }
-
