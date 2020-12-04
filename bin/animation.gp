@@ -7,10 +7,10 @@ do for [ii=1:num_frames] {
   name = sprintf("frames/%03d_frame.png", ii)
   set output name
 
-  set xrange [-5: 5]
-  set yrange [-5: 5]
+  set xrange [-2: 2]
+  set yrange [-2: 2]
 
-  set title "PO1" textcolor rgb "white"
+  set title "PO4" textcolor rgb "white"
 
   set size square
 
@@ -19,7 +19,7 @@ do for [ii=1:num_frames] {
   set xlabel "x"
   set ylabel "y"
 
-  num_lines = 23767
+  num_lines = 7454
   jj = num_lines / num_frames * ii
 
   plot \

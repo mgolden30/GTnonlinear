@@ -25,7 +25,7 @@ int main( int argc, char *argv[] ){
     bf_set_d( threshold, 1e-2 );
     bf_set_d( tolerance, 1e-50 );
     bf_set_d( error, 1e-15);
-    bf_set_d( hookstep, 0.1 );
+    bf_set_d( hookstep, 0.5 );
  
     bf_nonlinear f;
     f.m = m;
@@ -38,7 +38,7 @@ int main( int argc, char *argv[] ){
     bf_inits( n, state, prec );
 
     //PO1
-    
+/*    
     double state_d[] = {9.3213883162e-01, 
  4.1184551339e-01, 
 -1.7388921759e-01, 
@@ -48,12 +48,12 @@ int main( int argc, char *argv[] ){
 -3.1838720613e-01,
  6.4203522194e-01,
  1.4135554594e+01};
-
+*/
 
 
   //PO3
-  //1.26 is almost a new PO
-/*  double state_d[] = {4.991812150770e-01,
+ /*
+  double state_d[] = {4.991812150770e-01,
 -1.195770031071e-01,
 -5.505054841634e-01,
  1.699918044280e+00,
@@ -62,7 +62,7 @@ int main( int argc, char *argv[] ){
  1.262530333574e-01,
  2.782645088666e-01,
  4.959828632869e+00}; 
-*/
+ */
 
 //PO2
 /*
@@ -77,6 +77,17 @@ int main( int argc, char *argv[] ){
  7.327423125946e+00};
 */
   
+double state_d[] = { 1.0403684329e+00,
+-2.4670116425e-01,
+-2.3388685230e-01,
+ 1.1312348456e+00,
+-2.1006291199e-01,
+-8.4234550719e-01,
+-1.6861144207e-01,
+ 5.1142059298e-01,
+ 1.4906394076e+01};
+
+
 
     for(int i=0; i<n; i++){
         bf_set_d( state[i], state_d[i] );
@@ -85,11 +96,11 @@ int main( int argc, char *argv[] ){
     bf_print_vector(n, state);
    
     printf("Starting Newton.\n"); 
-    newton_raphson( f, state, 20, hookstep, threshold, tolerance);
+    newton_raphson( f, state, 300, hookstep, threshold, tolerance);
     bf_set_d( hookstep, 1.0 );
     bf_set_d( threshold, 1e-9 );
-    newton_raphson( f, state, 20, hookstep, threshold, tolerance);
-
+    newton_raphson( f, state, 10, hookstep, threshold, tolerance);
+  
     bf final_state[8];
     bf_inits( 8, final_state, prec );
 
@@ -285,8 +296,8 @@ void periodic_orbit_objective_function( bf *out, bf *in, bf *np, void *p ){
     //rk23( out, in, in[8], *error, &planar_3body_td, dimension );
     //rk4( out, in, in[8], oodt, &planar_3body_td, dimension );
     
-    fix_rotation( out, *tolerance );
-    fix_rotation( copy_of_in, *tolerance );
+    //fix_rotation( out, *tolerance );
+    //fix_rotation( copy_of_in, *tolerance );
     
     for(int i=0; i<8; i++){
         bf_sub( out[i], out[i], copy_of_in[i] );
