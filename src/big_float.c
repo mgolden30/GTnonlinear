@@ -75,9 +75,21 @@ void bf_mul(bf rop, bf op1, bf op2){
     mpfr_mul( rop, op1, op2, MPFR_RNDN );
 }
 
+
+//rop <- op1 * op2
+void bf_mul_d(bf rop, bf op1, double op2){
+    mpfr_mul_d( rop, op1, op2, MPFR_RNDN );
+}
+
+
 //rop <- op1 * op2
 void bf_mul_ui(bf rop, bf op1, unsigned int op2){
     mpfr_mul_ui( rop, op1, op2, MPFR_RNDN );
+}
+
+//rop <- op1 * op2
+void bf_mul_si(bf rop, bf op1, signed int op2){
+    mpfr_mul_si( rop, op1, op2, MPFR_RNDN );
 }
 
 //rop <- op1 / op2
@@ -106,7 +118,7 @@ void bf_abs( bf rop, bf op){
 }
 
 void bf_print(bf x){
-    mpfr_printf("% .6Re", x);
+    mpfr_printf("% .10Re", x);
 }
 
 void bf_print_vector(int n, bf *x){
