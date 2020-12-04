@@ -4,8 +4,8 @@ set terminal png enhanced
 
 set output "orbit.png"
 
-set xrange [-2.5: 2.5]
-set yrange [-2.5: 2.5]
+#set xrange [-2.5: 2.5]
+#set yrange [-2.5: 2.5]
 
 set size square
 

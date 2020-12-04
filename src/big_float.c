@@ -129,3 +129,16 @@ void bf_print_vector(int n, bf *x){
     printf("\n");
 }
 
+
+void bf_sin( bf rop, bf op ){
+    mpfr_sin( rop, op, MPFR_RNDN );
+}
+
+void bf_cos( bf rop, bf op ){
+    mpfr_cos( rop, op, MPFR_RNDN );
+}
+
+void bf_atan2( bf rop, bf opy, bf opx ){
+    mpfr_atan2( rop, opy, opx, MPFR_RNDN );
+}
+

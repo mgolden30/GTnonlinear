@@ -38,4 +38,8 @@ void bf_abs( bf rop, bf op);
 void bf_print(bf x);
 void bf_print_vector(int n, bf *x);
 
+void bf_sin( bf rop, bf op );
+void bf_cos( bf rop, bf op );
+void bf_atan2( bf rop, bf op1, bf op2 );
+
 #endif

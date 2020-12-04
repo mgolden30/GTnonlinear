@@ -31,8 +31,8 @@ void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep,
     BF_WORKING_MEMORY(work);
     bfp prec = bf_get_prec(state[0]);
     check_work_mem( &work, 2*m*n + n+ 2*m + n*n + n + 1 , prec);
-    bf *jacobian   = &work.ptr[0];
-    bf *jacobian_t = &work.ptr[m*n];
+    bf *jacobian   = &work.ptr[0*m*n];
+    bf *jacobian_t = &work.ptr[1*m*n];
     bf *perturb    = &work.ptr[2*m*n];
     bf *image      = &work.ptr[2*m*n+n];
     bf *pert_image = &work.ptr[2*m*n+n+m];
@@ -71,13 +71,16 @@ void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep,
 		bf_div( jacobian[i + j*n], jacobian[i + j*n], *h );
 	    }
 	}
-     
+
+
 	//Now that jacobian is done, take its transpose.
         bf_matrix_transpose( jacobian, m, n, jacobian_t);
 
         //Now plug it into QR decomposition to effectively do LQ decomposition
         qr_decomposition( q, jacobian_t, n, m, m, tolerance );
-        
+	//printf("Rotated Jacobian L^T: where J = LQ\n");
+        //bf_print_matrix( jacobian_t, n, m, m);       
+
 	//Take transpose of q
 	for(int i=0; i<n; i++){
             for(int j=i+1; j<n; j++){
