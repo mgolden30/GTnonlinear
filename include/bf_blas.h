@@ -17,5 +17,6 @@ void bf_blas_mm( int m, int n, int k, bf *a, int lda, bf *b, int ldb, bf *c, int
 
 	
 void qr_decomposition( bf *qt, bf *a, int m, int n, int lda, bf tolerance );
+
 void bf_print_matrix(bf *matrix, int m, int n, int lda);
 #endif

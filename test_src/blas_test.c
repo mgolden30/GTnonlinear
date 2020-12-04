@@ -40,7 +40,7 @@ int main( int argc, char *argv[] ){
 
     bf tolerance;
     bf_init( tolerance, prec );
-    bf_set_d( tolerance, 1e-40 );
+    bf_set_d( tolerance, 1e-20 );
 
     bf_print_matrix( r, m, n, n);
     
@@ -58,6 +58,6 @@ int main( int argc, char *argv[] ){
     bf_print_matrix( r,  m, n, n);
     bf_blas_mm( m,  m, n, qt, m, r, n, r, n);
     bf_print_matrix( r,  m, n, n);
-  
+ 
     return 0;
 }

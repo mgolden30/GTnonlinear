@@ -106,11 +106,16 @@ void bf_blas_mm( int m, int n, int k, bf *a, int lda, bf *b, int ldb, bf *c, int
 /* Take the transpose of a matrix.
  */
 void bf_matrix_transpose( bf *matrix, int m, int n, bf *matrix_t ){
+    BF_WORKING_MEMORY(work);
+    bfp prec = bf_get_prec(matrix[0]);
+    check_work_mem( &work, m*n, prec);
+ 
     for( int i=0; i<m; i++ ){
         for( int j=0; j<n; j++ ){
-            bf_set( matrix_t[i+j*m], matrix[j+i*n] );
+            bf_set( work.ptr[i+j*m], matrix[j+i*n] );
 	}
     }
+    bf_blas_copy(m*n, work.ptr, 1, matrix_t, 1 );
 }
 
 
@@ -213,6 +218,11 @@ void qr_decomposition( bf *qt, bf *a, int m, int n, int lda, bf tolerance ){
 	}
     }
 }
+
+
+
+
+
 
 void bf_print_matrix(bf *matrix, int m, int n, int lda){
     for(int j=0; j<m; j++){
