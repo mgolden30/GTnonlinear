@@ -185,7 +185,7 @@ void qr_decomposition( bf *qt, bf *a, int m, int n, int lda, bf tolerance ){
         //Check that mu is well-defined currently
         //If mu is too small, NANs will appear and you will be a sad camper
 	if(  bf_cmp( *mu, tolerance ) <= 0  ){
-            continue;
+    	    continue;
 	}
 
 	//turn a_vec into u_vec
@@ -246,22 +246,21 @@ void bf_diagonalize_spd( bf *u, bf *a, int m, int lda, bf tolerance){
         }
     }
 
-    for(int i=0; i<100; i++){
+    for(int i=0; i<1000; i++){
         qr_decomposition( rotation, a, m, m, lda, tolerance );
-	printf("rotation derived by qr is \n");
-        bf_print_matrix( rotation, m, m, m);
 
         bf_blas_mm( m, m, m, rotation, m, u, m, u, m);
 
 	bf_matrix_transpose( rotation, m, m, rotation );
         bf_blas_mm( m, m, m, a, lda, rotation, m, a, lda);
 
-	printf("iteration %d:\n", i);
-	printf("D\n");
-	bf_print_matrix( a, m, m, m );
-	printf("U\n");
-	bf_print_matrix( u, m, m, m );
     }
+    /*
+    printf("Diagonalization done.\n");
+    bf_print_matrix( a, m, m, m );
+    bf_print_matrix( u, m, m, m );
+    */
+
     //When you are done, we need to take the transpose of u
     bf_matrix_transpose( u, m, m, u );
 }
@@ -285,19 +284,22 @@ void bf_svd( bf *u, bf *vt, bf *sigma, bf *a, int m, int n, int lda, bf toleranc
     bf_blas_mm( n, m, n, at, m,   a,  lda, ata, n);
     
     bf_diagonalize_spd( u,  aat, m, m, tolerance );
-    bf_diagonalize_spd( vt, ata, m, m, tolerance );
+    bf_diagonalize_spd( vt, ata, n, n, tolerance );
+
+    bf_print_matrix( u,  m, m, m);
+    bf_print_matrix( vt, n, n, n);
 
     //Now u is correct, but vt contains v.
     //Sigma = U^T A V, so do the V multiplication now
     bf_blas_mm( m, n, n, a, lda, vt, n, sigma, n);
+   
     //Take transpose of vt and store transpose of u in work since we don't need any of it anymore
     bf *ut = &work.ptr[0];
-    bf_matrix_transpose(u,  m, m, ut);
-    bf_matrix_transpose(vt, n, n, vt);
+    bf_matrix_transpose( u, m, m, ut);    
     
-    //finish finding Sigma!
-    bf_blas_mm( m, m, n, u, m, sigma, n, sigma, n);
 
+    //finish finding Sigma!
+    bf_blas_mm( m, m, n, ut, m, sigma, n, sigma, n);
 
     printf("SVD accomplished.\n");
     printf("U = \n");

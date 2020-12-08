@@ -60,7 +60,6 @@ void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep,
 	bf_div_ui(*h, *h, 1000000000);
         //Now h = ||f(state)||*1E-9
 
-
         //Fill out the jacobian.
 	for( int i=0; i<n; i++){
             bf_blas_copy( n, state, 1, perturb, 1);
@@ -71,6 +70,15 @@ void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep,
 		bf_div( jacobian[i + j*n], jacobian[i + j*n], *h );
 	    }
 	}
+       
+        BF_WORKING_MEMORY(work2);
+        check_work_mem( &work2, m*m + n*n + m*n, prec);
+
+	bf *u  = &work2.ptr[0];
+	bf *vt = &work2.ptr[m*m];
+	bf *s  = &work2.ptr[m*m+n*n];
+        
+	bf_svd( u, vt, s, jacobian, m, n, n, tolerance);
 
 
 	//Now that jacobian is done, take its transpose.
