@@ -10,7 +10,7 @@ do for [ii=1:num_frames] {
   set xrange [-2: 2]
   set yrange [-2: 2]
 
-  set title "PO4" textcolor rgb "white"
+  #set title "PO7" textcolor rgb "white"
 
   set size square
 
@@ -19,8 +19,8 @@ do for [ii=1:num_frames] {
   set xlabel "x"
   set ylabel "y"
 
-  num_lines = 7454
-  jj = num_lines / num_frames * ii
+  num_lines = 1624
+  jj = (num_lines*1.0) / num_frames * ii
 
   plot \
        "orbit.dat" using 2:3 every ::1::jj with lines lc rgb "cyan" lw 2, \

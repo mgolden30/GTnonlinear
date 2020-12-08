@@ -15,8 +15,11 @@ void bf_blas_mv(int m, int n, bf *a, int lda, bf *x, int incx, bf *y, int incy);
 
 void bf_blas_mm( int m, int n, int k, bf *a, int lda, bf *b, int ldb, bf *c, int ldc);
 
-	
+
+
 void qr_decomposition( bf *qt, bf *a, int m, int n, int lda, bf tolerance );
+void bf_diagonalize_spd( bf *u, bf *a, int m, int lda, bf tolerance);
+void bf_svd( bf *u, bf *vt, bf *sigma, bf *a, int m, int n, int lda, bf tolerance);
 
 void bf_print_matrix(bf *matrix, int m, int n, int lda);
 #endif

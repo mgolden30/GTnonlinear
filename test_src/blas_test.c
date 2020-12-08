@@ -40,7 +40,7 @@ int main( int argc, char *argv[] ){
 
     bf tolerance;
     bf_init( tolerance, prec );
-    bf_set_d( tolerance, 1e-20 );
+    bf_set_d( tolerance, 1e-40 );
 
     bf_print_matrix( r, m, n, n);
     
@@ -58,6 +58,41 @@ int main( int argc, char *argv[] ){
     bf_print_matrix( r,  m, n, n);
     bf_blas_mm( m,  m, n, qt, m, r, n, r, n);
     bf_print_matrix( r,  m, n, n);
- 
+
+
+
+
+
+
+
+
+
+    for(int i=0; i<20; i++) printf("\n");
+
+    m=3;
+    n=3;
+    bf spd[m*n];
+    bf sigma[m*n];
+    bf u[m*m];
+    bf vt[n*n];
+    bf_inits(m*n, spd, prec);
+    bf_inits(m*n, sigma, prec);
+    bf_inits(m*m, u,   prec);
+    bf_inits(n*n, vt,  prec);
+    double spd_d[] = {2,-1,0,-1,2,-1,0,-1,2};
+    for(int i=0; i<m*m; i++){
+        bf_set_d( spd[i], spd_d[i] );
+    }
+    //bf_diagonalize_spd( u, spd, m, m, tolerance);
+    bf_svd( u, vt, sigma, spd, m, n, n, tolerance);
+
+
+
+
+
+
+
+
+
     return 0;
 }

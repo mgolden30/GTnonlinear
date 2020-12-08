@@ -57,8 +57,8 @@ void newton_raphson( bf_nonlinear f, bf *state, int max_iterations, bf hookstep,
 	    printf("State converged!\n");
             return;
         }
-	bf_div_ui(*h, *h, 10000);
-        //Now h = ||f(state)||*1E-4
+	bf_div_ui(*h, *h, 1000000000);
+        //Now h = ||f(state)||*1E-9
 
 
         //Fill out the jacobian.

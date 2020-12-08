@@ -194,7 +194,7 @@ compute_time_deriv:
 
 // The Runge–Kutta–Fehlberg method. It is a fifth order integrator with an embedded fourth order integrator so that 
 // error can be estimated. An adaptive step-size can be used.
-void rk45( bf *out, bf *in, bf end_time, bf error, void (*td)(bf *out, bf *in), int n ){
+void rk45( bf *out, bf *in, bf end_time, bf error, void (*td)(bf *out, bf *in), int n, int output ){
     BF_WORKING_MEMORY(work);
     bfp prec = bf_get_prec(in[0]);
     check_work_mem( &work, 9*n+3, prec);
@@ -234,10 +234,20 @@ void rk45( bf *out, bf *in, bf end_time, bf error, void (*td)(bf *out, bf *in), 
     //start by copying the current state to out
     bf_blas_copy( n, in, 1, out, 1 );
 
+
+    FILE *orbit;
+    if(output == 0) orbit = fopen("orbit.dat", "w");
     bf_set_ui( *time, 0 );
     bf_set_ui( *dt, 1);
     while( bf_cmp(*time, end_time) < 0 ){
-        //See if time + dt > end_time
+	if(output == 0){
+	mpfr_fprintf( orbit, "% .10Rf\t", *time );
+	for(int i=0; i<8; i++){
+	    mpfr_fprintf( orbit, "% .10Rf\t", out[i] );
+        }
+	fprintf(orbit, "\n");
+        }
+
         bf_add( temp[0], *time, *dt);
         if( bf_cmp( temp[0], end_time ) > 0 ){
             bf_sub( *dt, end_time, *time );
@@ -380,5 +390,6 @@ compute_time_deriv:
         //Increase timestep by a percent.
         bf_mul_d(*dt, *dt, 1.01);
     }
+    if(output ==0) fclose(orbit);
 }
 

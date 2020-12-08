@@ -4,8 +4,8 @@ set terminal png enhanced
 
 set output "orbit.png"
 
-#set xrange [-3: 3]
-#set yrange [-3: 3]
+set xrange [-3: 3]
+set yrange [-3: 3]
 
 set title "PO3" textcolor rgb "white"
 
