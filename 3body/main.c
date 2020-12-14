@@ -48,7 +48,7 @@ int main( int argc, char *argv[] ){
    */
 
 //PO2
- /*
+ 
  double state_d[] = {8.444489449743e-02,
  2.153332620005e-02,
  8.369080946320e-01,
@@ -58,7 +58,7 @@ int main( int argc, char *argv[] ){
 -6.552806166016e-01,
  7.348976526846e-01,
  7.327423125946e+00};
- */
+ 
 
   //PO3
  /*
@@ -115,6 +115,7 @@ double state_d[] = { 1.0403684329e+00,
 */
 
   //PO7
+  /*
   double state_d[] = {\
   1.1399220496e+00,
   1.2035669125e-01,
@@ -125,6 +126,7 @@ double state_d[] = { 1.0403684329e+00,
  -4.2628650932e-01,
  -5.7385449999e-01,
   1.0374192191e+01};
+  */
 
 
   //double state_d[] = { 1,0, 0,0, 0,1, 0,0, 4 };
@@ -265,8 +267,8 @@ void periodic_orbit_objective_function( bf *out, bf *in, bf *np, void *p ){
     int output = 1; //No output during newton
     rk45( out, in, in[8], *error, &planar_3body_td, dimension, output );
     
-    fix_rotation( out, *tolerance );
-    fix_rotation( copy_of_in, *tolerance );
+//    fix_rotation( out, *tolerance );
+//    fix_rotation( copy_of_in, *tolerance );
     
     for(int i=0; i<8; i++){
         bf_sub( out[i], out[i], copy_of_in[i] );
