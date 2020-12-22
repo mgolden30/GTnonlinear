@@ -22,7 +22,7 @@ int main( int argc, char *argv[] ){
     bf_init( tolerance, prec );
     bf_init( hookstep,  prec );
     bf_set_d( tolerance, 1e-50 );
-    bf_set_d( error, 1e-20);
+    bf_set_d( error, 1e-15);
  
     bf_nonlinear f;
     f.m = m;
@@ -34,104 +34,17 @@ int main( int argc, char *argv[] ){
     bf state[n];
     bf_inits( n, state, prec );
 
-    //PO1
-    /*
-    double state_d[] = {9.3213883162e-01, 
- 4.1184551339e-01, 
--1.7388921759e-01, 
--4.5095085400e-02,
--3.5597373723e-01,
- 7.8417112947e-01,
--3.1838720613e-01,
- 6.4203522194e-01,
- 1.4135554594e+01};
-   */
-
-//PO2
- 
- double state_d[] = {8.444489449743e-02,
- 2.153332620005e-02,
- 8.369080946320e-01,
- 7.341808005541e-01,
- 7.535202858588e-01,
--8.938040908186e-01,
--6.552806166016e-01,
- 7.348976526846e-01,
- 7.327423125946e+00};
- 
-
-  //PO3
- /*
-  double state_d[] = {4.991812150770e-01,
--1.195770031071e-01,
--5.505054841634e-01,
- 1.699918044280e+00,
- 7.487473342824e-02,
--7.233755902280e-01,
- 1.262530333574e-01,
- 2.782645088666e-01,
- 4.959828632869e+00}; 
-  */ 
-
-  //PO4
-  /*
-double state_d[] = { 1.0403684329e+00,
--2.4670116425e-01,
--2.3388685230e-01,
- 1.1312348456e+00,
--2.1006291199e-01,
--8.4234550719e-01,
--1.6861144207e-01,
- 5.1142059298e-01,
- 1.4906394076e+01};
- */
-
- //PO5
-/*  
-  double state_d[] = \
-  { 9.9284027395e-01,
--1.9574636138e-01,
- 3.6785233723e-01,
--1.3623880882e-01,
--1.9950442565e-01,
--1.2316523629e+00,
- 2.1844245346e-01,
- 1.2357829515e+00,
- 1.7015285708e+01};
-*/
-
- //PO6
-/*
-  double state_d[] = {\
-  1.1545854072e+00,
-  -4.7154253926e-03,
-  -5.7320825013e-01,
-  1.0023244819e+00,
-  2.9113240798e-03,
-  7.0711970059e-01,
- -6.1395557828e-01,
- -3.5100740326e-01,
-  10.2448863613e+00};
-*/
-
-  //PO7
-  /*
-  double state_d[] = {\
-  1.1399220496e+00,
-  1.2035669125e-01,
- -6.7419731850e-01,
-  9.2706227570e-01,
- -2.8380882471e-01,
-  6.5609344033e-01,
- -4.2628650932e-01,
- -5.7385449999e-01,
-  1.0374192191e+01};
-  */
-
-
-  //double state_d[] = { 1,0, 0,0, 0,1, 0,0, 4 };
-  
-
+    double state_d[] = {
+     1.7193284422e+00,
+-5.7337446177e-01,
+ 1.3995529123e-01,
+ 8.3754768588e-02,
+-2.6178729333e-01,
+ 7.6679641899e-01,
+-1.2127842743e-01,
+-1.1860925952e-01,
+ 1.7082388113e+01
+    };
     for(int i=0; i<n; i++){
         bf_set_d( state[i], state_d[i] );
     }
@@ -140,9 +53,9 @@ double state_d[] = { 1.0403684329e+00,
    
     printf("Starting Newton.\n"); 
    
-    bf_set_d( hookstep, 1.0 );
-    bf_set_d( threshold, 1e-18 );
-    newton_raphson( f, state, 7, hookstep, threshold, tolerance);
+    bf_set_d( hookstep, 0.001 );
+    bf_set_d( threshold, 1e-3 );
+    newton_raphson( f, state, 1000, hookstep, threshold, tolerance);
    
    /* 
     bf_set_d( hookstep, 1.0 );
@@ -267,8 +180,8 @@ void periodic_orbit_objective_function( bf *out, bf *in, bf *np, void *p ){
     int output = 1; //No output during newton
     rk45( out, in, in[8], *error, &planar_3body_td, dimension, output );
     
-//    fix_rotation( out, *tolerance );
-//    fix_rotation( copy_of_in, *tolerance );
+    //fix_rotation( out, *tolerance );
+    //fix_rotation( copy_of_in, *tolerance );
     
     for(int i=0; i<8; i++){
         bf_sub( out[i], out[i], copy_of_in[i] );
